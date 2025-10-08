@@ -47,7 +47,15 @@
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Verify compliance with [Vaccine Tracker Constitution v1.0.0](.specify/memory/constitution.md):
+
+- [ ] **Mobile-First Testing**: Feature testable on physical devices via local network?
+- [ ] **Instant Feedback Loop**: Hot reload preserved? Real-time updates working?
+- [ ] **Core Flow Simplicity**: Does this add to Generate QR → Scan → Dashboard? If no, reject.
+- [ ] **Free-Tier Architecture**: Stays within Supabase free tier limits?
+- [ ] **Zero-Config DX**: No new manual configuration required?
+
+*If any check fails, document in Complexity Tracking or simplify design.*
 
 ## Project Structure
 
@@ -216,4 +224,4 @@ directories captured above]
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+*Based on Constitution v1.0.0 - See `.specify/memory/constitution.md`*

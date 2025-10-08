@@ -1,0 +1,408 @@
+openapi: 3.0.3
+info:
+  title: Vaccine Tracker MVP API
+  description: API contracts for QR code generation, scanning, and real-time dashboard
+  version: 1.0.0
+  contact:
+    name: MVP Team
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: http://{local_ip}:3000
+    description: Local network (mobile testing)
+    variables:
+      local_ip:
+        default: 192.168.1.100
+        description: Auto-detected local IP address
+
+tags:
+  - name: QR Generation
+    description: Generate and manage vaccine QR codes
+  - name: Scanning
+    description: Scan QR codes and record events
+  - name: Dashboard
+    description: Real-time dashboard data
+
+paths:
+  /api/qr/generate:
+    post:
+      summary: Generate a new vaccine QR code
+      description: Creates a QR code with GS1-formatted data and saves to database
+      tags:
+        - QR Generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateQRRequest'
+            example:
+              gtin: "12345678901234"
+              batch: "BATCH001"
+              expiry: "2025-12-31"
+              serial: "SN001"
+      responses:
+        '201':
+          description: QR code created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCodeResponse'
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                gtin: "12345678901234"
+                batch: "BATCH001"
+                expiry: "2025-12-31"
+                serial: "SN001"
+                qr_data: "(01)12345678901234(10)BATCH001(17)251231(21)SN001"
+                qr_image_url: "data:image/png;base64,iVBORw0KGgo..."
+                created_at: "2025-10-05T12:34:56.789Z"
+                created_by: "admin@example.com"
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_gtin:
+                  value:
+                    error: "GTIN must be exactly 14 digits"
+                duplicate_serial:
+                  value:
+                    error: "Serial number already exists"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/qr/{id}:
+    get:
+      summary: Get QR code details by ID
+      tags:
+        - QR Generation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: QR code found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCodeResponse'
+        '404':
+          description: QR code not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/qr/recent:
+    get:
+      summary: Get recent QR codes
+      description: Returns the most recently generated QR codes
+      tags:
+        - QR Generation
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: List of recent QR codes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QRCodeResponse'
+                  count:
+                    type: integer
+
+  /api/scan:
+    post:
+      summary: Record a QR code scan event
+      description: Called by mobile app after successfully scanning a QR code
+      tags:
+        - Scanning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanRequest'
+            example:
+              serial: "SN001"
+              scanned_by: "scanner@example.com"
+              device_info: "iPhone 12, iOS 16.3"
+      responses:
+        '201':
+          description: Scan recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanEventResponse'
+              example:
+                id: "660e8400-e29b-41d4-a716-446655440001"
+                qr_code:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+                  gtin: "12345678901234"
+                  batch: "BATCH001"
+                  serial: "SN001"
+                  qr_data: "(01)12345678901234(10)BATCH001(17)251231(21)SN001"
+                scanned_by: "scanner@example.com"
+                scanned_at: "2025-10-05T12:35:00.123Z"
+                device_info: "iPhone 12, iOS 16.3"
+        '400':
+          description: Invalid scan data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "QR code with serial 'SN999' not found"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/scans/recent:
+    get:
+      summary: Get recent scan events
+      description: Returns the most recent scans for dashboard feed
+      tags:
+        - Dashboard
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+      responses:
+        '200':
+          description: List of recent scans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ScanEventResponse'
+                  count:
+                    type: integer
+
+  /api/scans/stats:
+    get:
+      summary: Get scan statistics
+      description: Returns total scan count and other aggregate stats
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Scan statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_scans:
+                    type: integer
+                    example: 1234
+                  total_qr_codes:
+                    type: integer
+                    example: 567
+                  scans_today:
+                    type: integer
+                    example: 89
+
+  /api/scans/user/{email}:
+    get:
+      summary: Get scans for specific user
+      description: Returns last N scans for a given user (for mobile app)
+      tags:
+        - Scanning
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: User's recent scans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ScanEventResponse'
+
+components:
+  schemas:
+    GenerateQRRequest:
+      type: object
+      required:
+        - gtin
+        - batch
+        - expiry
+        - serial
+      properties:
+        gtin:
+          type: string
+          pattern: '^\d{14}$'
+          description: Global Trade Item Number (14 digits)
+          example: "12345678901234"
+        batch:
+          type: string
+          maxLength: 20
+          pattern: '^[A-Za-z0-9]+$'
+          description: Batch/Lot number (alphanumeric)
+          example: "BATCH001"
+        expiry:
+          type: string
+          format: date
+          description: Expiry date (YYYY-MM-DD)
+          example: "2025-12-31"
+        serial:
+          type: string
+          maxLength: 20
+          pattern: '^[A-Za-z0-9]+$'
+          description: Serial number (unique)
+          example: "SN001"
+
+    QRCodeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gtin:
+          type: string
+        batch:
+          type: string
+        expiry:
+          type: string
+          format: date
+        serial:
+          type: string
+        qr_data:
+          type: string
+          description: GS1-formatted data string
+          example: "(01)12345678901234(10)BATCH001(17)251231(21)SN001"
+        qr_image_url:
+          type: string
+          description: Data URL of QR code PNG image (optional, only on generate)
+          example: "data:image/png;base64,..."
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: email
+          nullable: true
+
+    ScanRequest:
+      type: object
+      required:
+        - serial
+        - scanned_by
+      properties:
+        serial:
+          type: string
+          description: Serial number from scanned QR code
+          example: "SN001"
+        scanned_by:
+          type: string
+          format: email
+          description: Email of user performing scan
+          example: "scanner@example.com"
+        device_info:
+          type: string
+          description: Optional device information
+          example: "iPhone 12, iOS 16.3"
+
+    ScanEventResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        qr_code:
+          $ref: '#/components/schemas/QRCodeResponse'
+        scanned_by:
+          type: string
+          format: email
+        scanned_at:
+          type: string
+          format: date-time
+        device_info:
+          type: string
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+          example: "INVALID_GTIN"
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Authentication required"
+            code: "UNAUTHORIZED"
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Internal server error"
+            code: "SERVER_ERROR"
+
+  securitySchemes:
+    SupabaseAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT token from auth session
+
+security:
+  - SupabaseAuth: []

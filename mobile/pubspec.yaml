@@ -1,0 +1,38 @@
+name: vaccine_tracker
+description: "Vaccine Tracker MVP - Mobile QR Scanner App"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Supabase integration for real-time database and auth
+  supabase_flutter: ^2.0.0
+
+  # QR code scanning with camera
+  mobile_scanner: ^7.1.2
+
+  # State management
+  provider: ^6.1.0
+
+  # Local storage for preferences
+  shared_preferences: ^2.2.0
+
+  # Environment variables (optional)
+  flutter_dotenv: ^6.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Environment files
+  assets:
+    - .env
