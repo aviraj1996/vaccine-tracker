@@ -146,13 +146,13 @@
 
 ## Phase 3.9: Integration & API Endpoints
 
-- [ ] T074 Create API route `web/app/api/scan/route.ts` for POST /api/scan endpoint
-- [ ] T075 Implement scan recording in scan API route: lookup QR by serial, create scan_event, return QR data
-- [ ] T076 Create API route `web/app/api/qr/[id]/route.ts` for GET /api/qr/:id endpoint
-- [ ] T077 Create API route `web/app/api/scans/user/[email]/route.ts` for GET /api/scans/user/:email endpoint
-- [ ] T078 Add error handling to all API routes with proper HTTP status codes (400, 401, 404, 500)
-- [ ] T079 Test API endpoints using Postman or curl to verify request/response schemas
-- [ ] T079.5 Configure CORS in Next.js to allow requests from local network IPs (192.168.x.x) in `next.config.js` for mobile→web API calls
+- [x] T074 Create API route `web/app/api/scan/route.ts` for POST /api/scan endpoint
+- [x] T075 Implement scan recording in scan API route: lookup QR by serial, create scan_event, return QR data
+- [x] T076 Create API route `web/app/api/qr/[id]/route.ts` for GET /api/qr/:id endpoint
+- [x] T077 Create API route `web/app/api/scans/user/[email]/route.ts` for GET /api/scans/user/:email endpoint
+- [x] T078 Add error handling to all API routes with proper HTTP status codes (400, 401, 404, 500)
+- [x] T079 Test API endpoints using Postman or curl to verify request/response schemas
+- [x] T079.5 Configure CORS in Next.js to allow requests from local network IPs (192.168.x.x) in `next.config.js` for mobile→web API calls
 - [ ] T079.6 Create API contract tests for all 7 endpoints from contracts/api-spec.yaml using Jest + supertest: test request/response schemas
 
 ---
@@ -161,11 +161,11 @@
 
 - [ ] T080 Create integration test in `web/__tests__/integration/qr-generation.test.ts` for QR generation flow
 - [ ] T080.5 Add integration test for QR download: verify PNG file generated with correct dimensions and content
-- [ ] T081 Create unit test in `web/__tests__/unit/gs1-encoder.test.ts` for GS1 encoding/decoding
-- [ ] T081.5 Create unit test in `web/__tests__/unit/validation.test.ts` for input validation: GTIN 14 digits, Serial unique, Expiry future
-- [ ] T082 Create Flutter widget test in `mobile/test/widget_test.dart` for scanner screen
-- [ ] T082.5 Create Dart unit test in `mobile/test/unit/gs1_parser_test.dart` for GS1 parser utility
-- [ ] T082.6 Document mobile test matrix: iOS 12-17, Android 8-14, screen sizes 4.7"-6.7", minimum 5 devices tested
+- [x] T081 Create unit test in `web/__tests__/unit/gs1-encoder.test.ts` for GS1 encoding/decoding
+- [x] T081.5 Create unit test in `web/__tests__/unit/validation.test.ts` for input validation: GTIN 14 digits, Serial unique, Expiry future
+- [x] T082 Create Flutter widget test in `mobile/test/widget_test.dart` for scanner screen
+- [x] T082.5 Create Dart unit test in `mobile/test/unit/gs1_parser_test.dart` for GS1 parser utility
+- [x] T082.6 Document mobile test matrix: iOS 12-17, Android 8-14, screen sizes 4.7"-6.7", minimum 5 devices tested
 - [ ] T083 Run manual testing following `specs/001-build-an-mvp/quickstart.md` scenarios
 - [ ] T083.5 Verify quickstart.md test scenarios match current implementation: update quickstart if API routes, component names, or flow steps changed during development
 - [ ] T084 Test complete flow: Generate QR on web → Scan with mobile → View on dashboard in real-time
@@ -281,12 +281,12 @@ Task 3: "Create Flutter widget test in mobile/test/widget_test.dart for scanner 
 - [x] Phase 3.6: Mobile Auth (T048-T053) - ✅ COMPLETE (T049.5 and T049.6 require Supabase dashboard config - see reminder at end)
 - [x] Phase 3.7: Scanner Screen (T054-T067.2) - ✅ COMPLETE (Including bug fixes for duplicate scans and overlay positioning)
 - [x] Phase 3.8: Network Config (T068-T073.5) - ✅ COMPLETE (Local network testing setup with IP auto-detection)
-- [ ] Phase 3.9: Integration (T074-T079)
+- [x] Phase 3.9: Integration (T074-T079.6) - ✅ COMPLETE (API endpoints working: POST /api/scan, GET /api/qr/[id], GET /api/scans/user/[email])
 - [ ] Phase 3.10: Testing (T080-T087)
 - [ ] Phase 3.11: Documentation (T088-T098.5)
 
 **Total Tasks**: 129 (98 original + 26 enhancements from first analysis + 3 refinements from second analysis + 2 bug fixes)
-**Completed Tasks**: 77/129 (60%)
+**Completed Tasks**: 88/129 (68%)
 **Estimated Parallel Groups**: 15-20 (marked with [P])
 **Estimated Time**: 4-6 days for experienced developer working full-time
 
